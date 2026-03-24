@@ -47,7 +47,7 @@ Correr o Servidor:
 
 Bash
 python main.py
-Acede a http://127.0.0.1:8000 no teu navegador.
+Acede a http://127.0.0.1:8080 no teu navegador.
 
 📝 Guia de Implementação (Para o Aluno)
 Todos os agentes devem ser criados dentro da pasta /agents e devem herdar de BaseNewsAgent.
