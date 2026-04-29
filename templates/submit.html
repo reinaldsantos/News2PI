@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enviar Notícia — Blogue Corrupção</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #f5f1eb;
+    --paper-2: #ede9e1;
+    --paper-3: #e0dbd2;
+    --accent: #c8102e;
+    --muted: #6b6560;
+    --border: rgba(10,10,10,0.12);
+    --green: #166534;
+    --green-light: #dcfce7;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'IBM Plex Sans',sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; }
+
+  .topbar {
+    border-bottom:3px solid var(--ink);
+    padding:16px clamp(16px,4vw,60px);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .topbar-logo {
+    font-family:'Playfair Display',serif;
+    font-size:22px;
+    font-weight:900;
+    text-decoration:none;
+    color:var(--ink);
+  }
+  .back-link {
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+    color:var(--muted);
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    transition:color .2s;
+  }
+  .back-link:hover { color:var(--ink); }
+
+  .page-wrap {
+    max-width:720px;
+    margin:0 auto;
+    padding:48px clamp(16px,4vw,40px) 80px;
+  }
+
+  .page-header { margin-bottom:36px; }
+  .page-eyebrow {
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:10px;
+  }
+  .page-title {
+    font-family:'Playfair Display',serif;
+    font-size:36px;
+    font-weight:700;
+    line-height:1.15;
+  }
+  .page-desc {
+    margin-top:10px;
+    font-size:15px;
+    color:var(--muted);
+    line-height:1.7;
+  }
+
+  .form-section { margin-bottom:32px; }
+  .form-label {
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink);
+    margin-bottom:8px;
+  }
+  .form-hint { font-size:12px; color:var(--muted); margin-top:4px; font-weight:400; }
+
+  input[type=text], input[type=url], select, textarea {
+    width:100%;
+    padding:12px 14px;
+    background:var(--paper-2);
+    border:1px solid var(--border);
+    border-radius:0;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:15px;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .2s, background .2s;
+    appearance:none;
+  }
+  input[type=text]:focus, input[type=url]:focus, select:focus, textarea:focus {
+    border-color:var(--ink);
+    background:var(--paper);
+    box-shadow:0 0 0 3px rgba(10,10,10,.06);
+  }
+  textarea { resize:vertical; min-height:180px; line-height:1.7; }
+  select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230a0a0a' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:40px; cursor:pointer; }
+
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:600px) { .form-row { grid-template-columns:1fr; } }
+
+  .priority-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .priority-option { display:none; }
+  .priority-option + label {
+    display:block;
+    border:1px solid var(--border);
+    padding:12px 14px;
+    cursor:pointer;
+    text-align:center;
+    transition:all .2s;
+  }
+  .priority-option:checked + label { border-color:var(--ink); background:var(--ink); color:#fff; }
+  .priority-label { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; display:block; }
+  .priority-desc { font-size:11px; color:inherit; opacity:.6; margin-top:2px; display:block; }
+
+  .tags-input-wrap { position:relative; }
+  .tags-display { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; min-height:28px; }
+  .tag-pill {
+    background:var(--ink);
+    color:#fff;
+    padding:3px 10px;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.06em;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .tag-pill button { background:none; border:none; color:#fff; cursor:pointer; font-size:12px; padding:0; line-height:1; opacity:.6; }
+  .tag-pill button:hover { opacity:1; }
+
+  .submit-area { display:flex; align-items:center; gap:16px; margin-top:40px; padding-top:24px; border-top:1px solid var(--border); }
+  .btn-primary {
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    padding:14px 36px;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:background .2s;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .btn-primary:hover:not(:disabled) { background:var(--accent); }
+  .btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+  .btn-secondary {
+    background:none;
+    color:var(--muted);
+    border:1px solid var(--border);
+    padding:14px 24px;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    cursor:pointer;
+    text-decoration:none;
+    transition:border-color .2s, color .2s;
+  }
+  .btn-secondary:hover { border-color:var(--ink); color:var(--ink); }
+
+  .alert {
+    padding:14px 18px;
+    font-size:14px;
+    margin-bottom:24px;
+    display:none;
+    border-left:3px solid;
+    line-height:1.5;
+  }
+  .alert-success { background:var(--green-light); color:var(--green); border-color:var(--green); }
+  .alert-error { background:#fef2f2; color:#991b1b; border-color:#991b1b; }
+  .alert.show { display:block; }
+
+  /* API docs section */
+  .api-section {
+    margin-top:60px;
+    padding-top:32px;
+    border-top:2px solid var(--ink);
+  }
+  .api-title { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; margin-bottom:8px; }
+  .api-desc { font-size:14px; color:var(--muted); margin-bottom:20px; line-height:1.7; }
+  .code-block {
+    background:var(--ink);
+    color:#e5e7eb;
+    padding:20px 24px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    line-height:1.8;
+    overflow-x:auto;
+    margin-bottom:16px;
+    position:relative;
+  }
+  .code-keyword { color:#93c5fd; }
+  .code-string { color:#86efac; }
+  .code-comment { color:#6b7280; font-style:italic; }
+  .copy-btn {
+    position:absolute; top:12px; right:12px;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.2);
+    color:#fff;
+    padding:4px 10px;
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif;
+    transition:background .2s;
+  }
+  .copy-btn:hover { background:rgba(255,255,255,.2); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/" class="topbar-logo">Blogue Corrupção</a>
+  <a href="/" class="back-link">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Voltar ao Blogue
+  </a>
+</div>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="page-eyebrow">Servidor Central · EPF 2.º Ano</div>
+    <h1 class="page-title">Enviar Notícia</h1>
+    <p class="page-desc">Submeta informação para o hub de notícias. Todos os envios ficam disponíveis em tempo real para todos os leitores e agentes conectados.</p>
+  </div>
+
+  <div class="alert alert-success" id="alert-success">
+    <strong>Notícia publicada com sucesso!</strong> Está agora visível no blogue e foi transmitida a todos os agentes conectados.
+  </div>
+  <div class="alert alert-error" id="alert-error"></div>
+
+  <div id="submit-form">
+
+    <div class="form-section">
+      <label class="form-label">Título da Notícia *</label>
+      <input type="text" id="f-title" placeholder="Ex: Ministério alvo de investigação por contratos suspeitos…" maxlength="200">
+    </div>
+
+    <div class="form-section">
+      <label class="form-label">Conteúdo / Corpo da Notícia *</label>
+      <textarea id="f-content" placeholder="Escreva o texto completo da notícia aqui. Inclua factos, fontes e contexto relevante…"></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-section">
+        <label class="form-label">Categoria</label>
+        <select id="f-category">
+          {% for cat in categories %}
+          <option value="{{ cat }}">{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-section">
+        <label class="form-label">Fonte / Origem</label>
+        <input type="text" id="f-source" placeholder="Ex: Agente_EPF, Público, MP…">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-section">
+        <label class="form-label">Autor (opcional)</label>
+        <input type="text" id="f-author" placeholder="Nome do repórter ou agente">
+      </div>
+      <div class="form-section">
+        <label class="form-label">URL da Imagem (opcional)</label>
+        <input type="url" id="f-image" placeholder="https://…">
+      </div>
+    </div>
+
+    <div class="form-section">
+      <label class="form-label">Prioridade</label>
+      <div class="priority-grid">
+        <div>
+          <input type="radio" name="priority" id="p-normal" class="priority-option" value="normal" checked>
+          <label for="p-normal">
+            <span class="priority-label">Normal</span>
+            <span class="priority-desc">Notícia regular</span>
+          </label>
+        </div>
+        <div>
+          <input type="radio" name="priority" id="p-high" class="priority-option" value="high">
+          <label for="p-high">
+            <span class="priority-label">Destaque</span>
+            <span class="priority-desc">Alta relevância</span>
+          </label>
+        </div>
+        <div>
+          <input type="radio" name="priority" id="p-breaking" class="priority-option" value="breaking">
+          <label for="p-breaking">
+            <span class="priority-label">Urgente</span>
+            <span class="priority-desc">Breaking news</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <label class="form-label">Tags</label>
+      <input type="text" id="f-tags-input" placeholder="Adicione tags e pressione Enter…">
+      <div class="tags-display" id="tags-display"></div>
+      <div class="form-hint">Pressione Enter ou vírgula para adicionar uma tag</div>
+    </div>
+
+    <div class="submit-area">
+      <button class="btn-primary" id="btn-submit" onclick="submitNews()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Publicar Notícia
+      </button>
+      <a href="/" class="btn-secondary">Cancelar</a>
+    </div>
+  </div>
+
+  <!-- API Docs -->
+  <div class="api-section">
+    <div class="api-title">API para Agentes</div>
+    <p class="api-desc">Os agentes podem enviar notícias programaticamente via POST para o endpoint abaixo. Ideal para integração com scripts Python, automações e micro-serviços.</p>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+<span class="code-comment"># Exemplo Python — enviar notícia via agente</span>
+<span class="code-keyword">import</span> requests
+
+payload = {
+    <span class="code-string">"title"</span>:    <span class="code-string">"Título da notícia aqui"</span>,
+    <span class="code-string">"content"</span>:  <span class="code-string">"Corpo completo da notícia…"</span>,
+    <span class="code-string">"category"</span>: <span class="code-string">"Corrupção"</span>,    <span class="code-comment"># ou Política, Justiça, etc.</span>
+    <span class="code-string">"source"</span>:   <span class="code-string">"Agente_EPF"</span>,
+    <span class="code-string">"author"</span>:   <span class="code-string">"Investigador Alpha"</span>,
+    <span class="code-string">"priority"</span>: <span class="code-string">"breaking"</span>,     <span class="code-comment"># normal | high | breaking</span>
+    <span class="code-string">"tags"</span>:     [<span class="code-string">"MP"</span>, <span class="code-string">"contratos"</span>, <span class="code-string">"saúde"</span>],
+}
+
+r = requests.post(<span class="code-string">"http://localhost:8080/api/news"</span>, json=payload)
+<span class="code-keyword">print</span>(r.json())  <span class="code-comment"># {"success": true, "id": "..."}</span>
+    </div>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+<span class="code-comment"># Listar notícias por categoria</span>
+r = requests.get(<span class="code-string">"http://localhost:8080/api/news"</span>, params={
+    <span class="code-string">"category"</span>: <span class="code-string">"Corrupção"</span>,
+    <span class="code-string">"page"</span>: 1,
+    <span class="code-string">"per_page"</span>: 20
+})
+<span class="code-keyword">for</span> item <span class="code-keyword">in</span> r.json()[<span class="code-string">"items"</span>]:
+    <span class="code-keyword">print</span>(item[<span class="code-string">"title"</span>], <span class="code-string">"—"</span>, item[<span class="code-string">"source"</span>])
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+let tags = [];
+
+// Tags input
+const tagsInput = document.getElementById('f-tags-input');
+tagsInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    addTag(tagsInput.value.trim().replace(/,$/,''));
+    tagsInput.value = '';
+  }
+});
+
+function addTag(val) {
+  val = val.trim();
+  if (!val || tags.includes(val) || tags.length >= 8) return;
+  tags.push(val);
+  renderTags();
+}
+
+function removeTag(t) {
+  tags = tags.filter(x => x !== t);
+  renderTags();
+}
+
+function renderTags() {
+  document.getElementById('tags-display').innerHTML = tags.map(t =>
+    `<span class="tag-pill">${t}<button onclick="removeTag('${t}')">✕</button></span>`
+  ).join('');
+}
+
+async function submitNews() {
+  const title = document.getElementById('f-title').value.trim();
+  const content = document.getElementById('f-content').value.trim();
+
+  if (!title) { showError('O título é obrigatório.'); return; }
+  if (!content) { showError('O conteúdo é obrigatório.'); return; }
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" stroke-dasharray="8 8"><animateTransform attributeName="transform" type="rotate" from="0 7 7" to="360 7 7" dur="0.8s" repeatCount="indefinite"/></circle></svg> A publicar…';
+
+  const priority = document.querySelector('input[name=priority]:checked').value;
+
+  const payload = {
+    title,
+    content,
+    category: document.getElementById('f-category').value,
+    source: document.getElementById('f-source').value.trim() || 'Anónimo',
+    author: document.getElementById('f-author').value.trim(),
+    image_url: document.getElementById('f-image').value.trim(),
+    priority,
+    tags
+  };
+
+  try {
+    const r = await fetch(API + '/api/news', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const d = await r.json();
+    if (d.success) {
+      document.getElementById('alert-error').classList.remove('show');
+      document.getElementById('alert-success').classList.add('show');
+      document.getElementById('alert-success').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Reset form
+      document.getElementById('f-title').value = '';
+      document.getElementById('f-content').value = '';
+      document.getElementById('f-source').value = '';
+      document.getElementById('f-author').value = '';
+      document.getElementById('f-image').value = '';
+      tags = [];
+      renderTags();
+      document.getElementById('p-normal').checked = true;
+    } else {
+      showError(d.error || 'Erro desconhecido.');
+    }
+  } catch(e) {
+    showError('Não foi possível ligar ao servidor. Verifique se o servidor está a correr em localhost:8080.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Publicar Notícia';
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('alert-error');
+  el.textContent = msg;
+  el.classList.add('show');
+  el.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function copyCode(btn) {
+  const block = btn.parentElement;
+  const text = block.innerText.replace('Copiar\n','').replace('Copiado!\n','');
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copiado!';
+    setTimeout(() => btn.textContent = 'Copiar', 2000);
+  });
+}
+</script>
+</body>
+</html>
