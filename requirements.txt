@@ -1,7 +1,3 @@
 fastapi
 uvicorn
 jinja2
-httpx
-beautifulsoup4
-transformers
-torch

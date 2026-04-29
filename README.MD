@@ -103,3 +103,15 @@ Autonomia: O agente corre de forma independente no teu computador.
 💡 Dica: Podes usar o Uvicorn para criar um mini-servidor local para testares o teu agente antes de enviares a notícia final para o Hub do professor.
 
 Projeto desenvolvido para a UC de Programação Avançada - 2.º Ano.
+
+## Deploy no Vercel
+
+O `requirements.txt` ficou apenas com as dependencias leves necessarias para o site/API:
+
+```txt
+fastapi
+uvicorn
+jinja2
+```
+
+As dependencias pesadas dos agentes com IA (`torch`, `transformers`, `beautifulsoup4`, `httpx`) ficam em `requirements-agents.txt`, para uso local. Isto evita que o Vercel ultrapasse o limite de bundle das funcoes Python.
