@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+import json
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -28,6 +29,7 @@ CATEGORIES = [
 ]
 
 database: List[Dict[str, Any]] = []
+subscribers: List[asyncio.Queue] = []
 
 
 class NewsEntry(BaseModel):
@@ -82,6 +84,23 @@ def entry_to_article(entry: NewsEntry) -> Dict[str, Any]:
         "url": entry.url,
         "confidence": entry.confidence,
     }
+
+
+async def broadcast(event_type: str, item: Dict[str, Any]):
+    if not subscribers:
+        return
+
+    message = f"event: {event_type}\ndata: {json.dumps(item, ensure_ascii=False)}\n\n"
+    stale: List[asyncio.Queue] = []
+    for queue in subscribers:
+        try:
+            queue.put_nowait(message)
+        except asyncio.QueueFull:
+            stale.append(queue)
+
+    for queue in stale:
+        if queue in subscribers:
+            subscribers.remove(queue)
 
 
 def article_from_api_payload(data: dict) -> Dict[str, Any]:
@@ -167,6 +186,7 @@ async def publish_news(request: Request, x_token: Optional[str] = Header(None)):
         raise HTTPException(status_code=422, detail="title, summary e url sao obrigatorios")
 
     database.insert(0, entry_to_article(entry))
+    await broadcast("new_article", database[0])
     return {"ok": True, "total": len(database)}
 
 
@@ -200,6 +220,7 @@ async def post_news(request: Request):
         raise HTTPException(status_code=400, detail="Titulo e conteudo sao obrigatorios")
 
     database.insert(0, item)
+    await broadcast("new_article", item)
     return {"success": True, "id": item["id"]}
 
 
@@ -224,8 +245,19 @@ def stats():
 
 @app.get("/api/stream")
 async def stream():
+    queue: asyncio.Queue = asyncio.Queue(maxsize=20)
+    subscribers.append(queue)
+
     async def events():
-        yield "event: connected\ndata: {}\n\n"
-        await asyncio.sleep(0.1)
+        try:
+            yield "event: connected\ndata: {}\n\n"
+            while True:
+                try:
+                    yield await asyncio.wait_for(queue.get(), timeout=25)
+                except asyncio.TimeoutError:
+                    yield ": heartbeat\n\n"
+        finally:
+            if queue in subscribers:
+                subscribers.remove(queue)
 
     return StreamingResponse(events(), media_type="text/event-stream")

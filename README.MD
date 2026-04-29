@@ -115,3 +115,19 @@ jinja2
 ```
 
 As dependencias pesadas dos agentes com IA (`torch`, `transformers`, `beautifulsoup4`, `httpx`) ficam em `requirements-agents.txt`, para uso local. Isto evita que o Vercel ultrapasse o limite de bundle das funcoes Python.
+
+## Agente local do Blogue Corrupcao
+
+O ficheiro `agentanti_corrupcao.py` envia noticias para a API do blogue:
+
+```bash
+python agentanti_corrupcao.py
+```
+
+Para usar os agentes localmente, instale as dependencias separadas:
+
+```bash
+pip install -r requirements-agents.txt
+```
+
+Estas dependencias nao entram no deploy do Vercel.
