@@ -16,7 +16,6 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-# Definição robusta de caminhos para a Vercel
 BASE_DIR = Path(__file__).resolve().parent
 templates_dir = os.path.join(os.path.dirname(__file__), "templates")
 templates = Jinja2Templates(directory=templates_dir)
@@ -145,14 +144,17 @@ def seed_data():
 def home(request: Request):
     try:
         seed_data()
-        return templates.TemplateResponse("index.html", {"request": request, "categories": CATEGORIES})
+        # Garantimos que passamos apenas strings limpas na lista de categorias
+        clean_categories = [str(c) for c in CATEGORIES]
+        return templates.TemplateResponse("index.html", {"request": request, "categories": clean_categories})
     except Exception as e:
         return HTMLResponse(content=f"<h3>Erro ao carregar template index.html: {str(e)}</h3>", status_code=500)
 
 @app.get("/submit", response_class=HTMLResponse)
 def submit(request: Request):
     try:
-        return templates.TemplateResponse("submit.html", {"request": request, "categories": CATEGORIES})
+        clean_categories = [str(c) for c in CATEGORIES]
+        return templates.TemplateResponse("submit.html", {"request": request, "categories": clean_categories})
     except Exception as e:
         return HTMLResponse(content=f"<h3>Erro ao carregar template submit.html: {str(e)}</h3>", status_code=500)
 
