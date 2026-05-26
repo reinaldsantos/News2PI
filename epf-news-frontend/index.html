@@ -1,0 +1,72 @@
+nano README.md
+# EPF News Hub - Frontend
+
+Frontend para o blogue de notícias sobre corrupção.
+
+## Backends conectados
+- https://news2pi.onrender.com
+- https://news2pi.vercel.app
+
+## Como funciona
+O frontend tenta conectar aos backends automaticamente:
+1. Primeiro tenta o Render
+2. Se falhar, tenta o Vercel
+3. Se ambos falharem, usa dados locais (modo demo)
+
+## Tecnologias
+- HTML5
+- CSS3 (Flexbox/Grid)
+- JavaScript (Vanilla)
+- Font Awesome 6
+- Google Fonts
+
+## Deploy
+Este é um HTML estático hospedado no GitHub Pages.
+nano .gitignore
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+# Verificar se está na pasta correta
+pwd
+# Deve mostrar: /Users/ap/MacBook-Air-de-Aldir/News2pi/epf-news-frontend
+
+# Inicializar git
+git init
+
+# Adicionar todos os arquivos
+git add .
+
+# Verificar o status
+git status
+
+# Fazer o commit
+git commit -m "feat: EPF News Hub frontend - conectado aos backends Render e Vercel"
+
+# Adicionar o remote do GitHub (usando o repositório que você mostrou)
+git remote add origin https://github.com/reinaldsantos/News2PI.git
+
+# Verificar se o remote foi adicionado
+git remote -v
+
+# Enviar para o GitHub (forçando a primeira push)
+git push -u origin main --force
+# Verificar qual branch você está
+git branch
+
+# Se estiver em "master", faça:
+git branch -M main
+
+# Agora tente push novamente
+git push -u origin main --force
+
