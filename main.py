@@ -264,3 +264,9 @@ async def stream():
                 subscribers.remove(queue)
 
     return StreamingResponse(events(), media_type="text/event-stream") 
+
+# Tratamento extra para compatibilidade Serverless na Vercel
+@app.exception_handler(500)
+async def internal_server_error_handler(request: Request, exc: Exception):
+    from fastapi.responses import JSONResponse
+    return JSONResponse(status_code=500, content={"detail": "Erro interno no worker Python da Vercel."})

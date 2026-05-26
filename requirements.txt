@@ -2,3 +2,4 @@ fastapi
 pydantic
 jinja2
 aiofiles
+uvicorn
