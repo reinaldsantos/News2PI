@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import uuid
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
