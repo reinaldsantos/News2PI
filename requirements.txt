@@ -2,3 +2,5 @@ fastapi
 jinja2
 pydantic
 aiofiles
+mangum
+mangum
