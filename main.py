@@ -4,21 +4,22 @@ import asyncio
 import json
 import uuid
 import re
-import urllib.request
-import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
-from email.utils import parsedate_to_datetime
+import os
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, Header, HTTPException, Query, Request
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 app = FastAPI()
+
+# Definição robusta de caminhos para a Vercel
 BASE_DIR = Path(__file__).resolve().parent
-templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+templates_dir = os.path.join(os.path.dirname(__file__), "templates")
+templates = Jinja2Templates(directory=templates_dir)
 
 API_TOKEN = "epf2026_secret"
 CATEGORIES = [
@@ -32,8 +33,6 @@ CATEGORIES = [
 ]
 
 database: List[Dict[str, Any]] = []
-subscribers: List[asyncio.Queue] = []
-
 
 class NewsEntry(BaseModel):
     agent_name: str
@@ -43,7 +42,6 @@ class NewsEntry(BaseModel):
     url: str
     confidence: float = 0.0
 
-
 def read_field(data: dict, *names: str, default=None):
     for name in names:
         value = data.get(name)
@@ -51,13 +49,11 @@ def read_field(data: dict, *names: str, default=None):
             return value
     return default
 
-
 def parse_confidence(value: Any) -> float:
     try:
         return float(str(value).replace(",", "."))
     except (TypeError, ValueError):
         return 0.0
-
 
 def normalize_publish_payload(data: dict) -> NewsEntry:
     return NewsEntry(
@@ -68,7 +64,6 @@ def normalize_publish_payload(data: dict) -> NewsEntry:
         url=str(read_field(data, "url", default="")).strip(),
         confidence=parse_confidence(read_field(data, "confidence", "confiança", "confianca", default=0.0)),
     )
-
 
 def entry_to_article(entry: NewsEntry) -> Dict[str, Any]:
     return {
@@ -87,24 +82,6 @@ def entry_to_article(entry: NewsEntry) -> Dict[str, Any]:
         "url": entry.url,
         "confidence": entry.confidence,
     }
-
-
-async def broadcast(event_type: str, item: Dict[str, Any]):
-    if not subscribers:
-        return
-
-    message = f"event: {event_type}\ndata: {json.dumps(item, ensure_ascii=False)}\n\n"
-    stale: List[asyncio.Queue] = []
-    for queue in subscribers:
-        try:
-            queue.put_nowait(message)
-        except asyncio.QueueFull:
-            stale.append(queue)
-
-    for queue in stale:
-        if queue in subscribers:
-            subscribers.remove(queue)
-
 
 def article_from_api_payload(data: dict) -> Dict[str, Any]:
     title = str(read_field(data, "title", "título", "titulo", default="")).strip()
@@ -129,11 +106,9 @@ def article_from_api_payload(data: dict) -> Dict[str, Any]:
         "status": "published",
     }
 
-
 def seed_data():
     if database:
         return
-
     samples = [
         {
             "title": "Ministério da Saúde alvo de investigação por contratos suspeitos",
@@ -156,7 +131,6 @@ def seed_data():
             "views": 89,
         },
     ]
-
     now = datetime.utcnow().isoformat() + "Z"
     for item in samples:
         database.append({
@@ -167,43 +141,37 @@ def seed_data():
             **item,
         })
 
-
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    seed_data()
-    return templates.TemplateResponse("index.html", {"request": request, "categories": CATEGORIES})
-
+    try:
+        seed_data()
+        return templates.TemplateResponse("index.html", {"request": request, "categories": CATEGORIES})
+    except Exception as e:
+        return HTMLResponse(content=f"<h3>Erro ao carregar template index.html: {str(e)}</h3>", status_code=500)
 
 @app.get("/submit", response_class=HTMLResponse)
 def submit(request: Request):
-    return templates.TemplateResponse("submit.html", {"request": request, "categories": CATEGORIES})
-
+    try:
+        return templates.TemplateResponse("submit.html", {"request": request, "categories": CATEGORIES})
+    except Exception as e:
+        return HTMLResponse(content=f"<h3>Erro ao carregar template submit.html: {str(e)}</h3>", status_code=500)
 
 @app.post("/publish")
 async def publish_news(request: Request, x_token: Optional[str] = Header(None)):
     if x_token != API_TOKEN:
         raise HTTPException(status_code=403, detail="Token invalido")
-
     entry = normalize_publish_payload(await request.json())
     if not entry.title or not entry.summary or not entry.url:
         raise HTTPException(status_code=422, detail="title, summary e url sao obrigatorios")
-
     database.insert(0, entry_to_article(entry))
-    await broadcast("new_article", database[0])
     return {"ok": True, "total": len(database)}
 
-
 @app.get("/api/news")
-def get_news(
-    category: str = "",
-    page: int = Query(1, ge=1),
-    per_page: int = Query(20, ge=1, le=100),
-):
+def get_news(category: str = "", page: int = Query(1, ge=1), per_page: int = Query(20, ge=1, le=100)):
     seed_data()
     items = list(database)
     if category and category != "Todas":
         items = [item for item in items if item.get("category") == category]
-
     items.sort(key=lambda item: item["timestamp"], reverse=True)
     start = (page - 1) * per_page
     end = start + per_page
@@ -215,26 +183,13 @@ def get_news(
         "has_more": end < len(items),
     }
 
-
 @app.post("/api/news")
 async def post_news(request: Request):
     item = article_from_api_payload(await request.json())
     if not item["title"] or not item["content"]:
         raise HTTPException(status_code=400, detail="Titulo e conteudo sao obrigatorios")
-
     database.insert(0, item)
-    await broadcast("new_article", item)
     return {"success": True, "id": item["id"]}
-
-
-@app.post("/api/news/{news_id}/view")
-def increment_view(news_id: str):
-    for item in database:
-        if item["id"] == news_id:
-            item["views"] = int(item.get("views", 0)) + 1
-            return {"success": True, "views": item["views"]}
-    raise HTTPException(status_code=404, detail="Not found")
-
 
 @app.get("/api/stats")
 def stats():
@@ -245,28 +200,6 @@ def stats():
         "active_agents": len({item.get("source") for item in database if item.get("source")}),
     }
 
-
-@app.get("/api/stream")
-async def stream():
-    queue: asyncio.Queue = asyncio.Queue(maxsize=20)
-    subscribers.append(queue)
-
-    async def events():
-        try:
-            yield "event: connected\ndata: {}\n\n"
-            while True:
-                try:
-                    yield await asyncio.wait_for(queue.get(), timeout=25)
-                except asyncio.TimeoutError:
-                    yield ": heartbeat\n\n"
-        finally:
-            if queue in subscribers:
-                subscribers.remove(queue)
-
-    return StreamingResponse(events(), media_type="text/event-stream") 
-
-# Tratamento extra para compatibilidade Serverless na Vercel
 @app.exception_handler(500)
 async def internal_server_error_handler(request: Request, exc: Exception):
-    from fastapi.responses import JSONResponse
-    return JSONResponse(status_code=500, content={"detail": "Erro interno no worker Python da Vercel."})
+    return JSONResponse(status_code=500, content={"detail": f"Erro interno no worker Python da Vercel: {str(exc)}"})
