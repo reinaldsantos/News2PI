@@ -28,7 +28,7 @@ CATEGORIES = [
     "Economia",
     "Internacional",
     "Sociedade",
-    "Investigação",
+    "Investigação"
 ]
 
 database: List[Dict[str, Any]] = []
@@ -144,17 +144,17 @@ def seed_data():
 def home(request: Request):
     try:
         seed_data()
-        # Garantimos que passamos apenas strings limpas na lista de categorias
-        clean_categories = [str(c) for c in CATEGORIES]
-        return templates.TemplateResponse("index.html", {"request": request, "categories": clean_categories})
+        # Criamos o dicionário de contexto explicitamente limpo
+        context = {"request": request, "categories": list(CATEGORIES)}
+        return templates.TemplateResponse("index.html", context)
     except Exception as e:
         return HTMLResponse(content=f"<h3>Erro ao carregar template index.html: {str(e)}</h3>", status_code=500)
 
 @app.get("/submit", response_class=HTMLResponse)
 def submit(request: Request):
     try:
-        clean_categories = [str(c) for c in CATEGORIES]
-        return templates.TemplateResponse("submit.html", {"request": request, "categories": clean_categories})
+        context = {"request": request, "categories": list(CATEGORIES)}
+        return templates.TemplateResponse("submit.html", context)
     except Exception as e:
         return HTMLResponse(content=f"<h3>Erro ao carregar template submit.html: {str(e)}</h3>", status_code=500)
 
