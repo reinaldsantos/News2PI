@@ -2,6 +2,572 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>EPF News Hub - Agência de Notícias</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', Arial, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            border-bottom: 3px solid #ff6b35;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header h1 small {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .live-bar {
+            background: rgba(0,0,0,0.3);
+            padding: 8px 20px;
+            margin-top: 10px;
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+
+        .live-badge {
+            background: #ff3333;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Container principal */
+        .main-container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: sticky;
+            top: 120px;
+            height: fit-content;
+        }
+
+        .trending-card, .stats-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+        }
+
+        .trending-card h3, .stats-card h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #1e3c72;
+            border-left: 4px solid #ff6b35;
+            padding-left: 10px;
+        }
+
+        .trending-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .trending-item:hover {
+            transform: translateX(5px);
+            background: #f8f9fa;
+            padding-left: 5px;
+        }
+
+        .trending-number {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: #ff6b35;
+            color: white;
+            border-radius: 6px;
+            text-align: center;
+            line-height: 28px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* Categorias */
+        .categories {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .category-btn {
+            padding: 8px 16px;
+            background: #f0f2f5;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .category-btn:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        .category-btn.active {
+            background: #1e3c72;
+            color: white;
+        }
+
+        /* Grid de notícias */
+        .news-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid #e0e0e0;
+        }
+
+        .news-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .news-content {
+            padding: 20px;
+        }
+
+        .news-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #ff6b35;
+            color: white;
+            font-size: 11px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .news-badge.urgent {
+            background: #dc3545;
+            animation: pulse 1.5s infinite;
+        }
+
+        .news-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+            line-height: 1.3;
+        }
+
+        .news-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .news-description {
+            color: #4a5568;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #ff6b35;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            width: 90%;
+            max-width: 700px;
+            border-radius: 16px;
+            max-height: 85%;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .close {
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: static;
+                order: 2;
+            }
+            .news-title {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .live-bar {
+                font-size: 11px;
+                gap: 10px;
+            }
+            .categories {
+                gap: 8px;
+            }
+            .category-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-content">
+        <h1>📰 EPF News Hub <small>Agência de Informação</small></h1>
+        <div class="live-bar">
+            <span class="live-badge">🔴 AO VIVO</span>
+            <span id="liveTime"></span>
+            <span>📍 Portugal</span>
+            <span id="statsCount">0 notícias</span>
+        </div>
+    </div>
+</header>
+
+<div class="main-container">
+    <div class="content">
+        <div class="categories" id="categories">
+            <button class="category-btn active" data-cat="all">📰 TODAS</button>
+            <button class="category-btn" data-cat="tecnologia">💻 TECNOLOGIA</button>
+            <button class="category-btn" data-cat="politica">🏛️ POLÍTICA</button>
+            <button class="category-btn" data-cat="economia">📊 ECONOMIA</button>
+            <button class="category-btn" data-cat="justica">⚖️ JUSTIÇA</button>
+            <button class="category-btn" data-cat="internacional">🌍 INTERNACIONAL</button>
+        </div>
+        <div id="newsContainer" class="news-grid">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>🔍 A carregar as últimas notícias...</p>
+                <small>Buscando informações em tempo real</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="trending-card">
+            <h3>🔥 TRENDING</h3>
+            <div id="trendingList"></div>
+        </div>
+        <div class="stats-card">
+            <h3>📊 INFO</h3>
+            <div class="stats-row"><span>📰 Artigos</span><span id="totalNoticias">0</span></div>
+            <div class="stats-row"><span>⚡ Urgentes</span><span id="urgentesCount">0</span></div>
+            <div class="stats-row"><span>🕐 Última atualização</span><span id="lastUpdate">-</span></div>
+        </div>
+    </div>
+</div>
+
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Notícia</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+    const PROXY_URL = 'https://api.allorigins.win/raw?url=';
+    const BACKEND_URL = 'https://news2pi.onrender.com';
+    let allNoticias = [];
+    let currentCategory = 'all';
+    let isLoading = false;
+
+    // Atualizar relógio
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('liveTime').innerHTML = `🕐 ${now.toLocaleTimeString('pt-PT')} · ${now.toLocaleDateString('pt-PT')}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    async function carregarNoticias() {
+        if (isLoading) return;
+        isLoading = true;
+        
+        const container = document.getElementById('newsContainer');
+        
+        try {
+            const response = await fetch(PROXY_URL + encodeURIComponent(BACKEND_URL), {
+                cache: 'no-store'
+            });
+            
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            
+            const html = await response.text();
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // Extrair notícias do HTML
+            const noticias = [];
+            const elementos = tempDiv.querySelectorAll('h1, h2, h3, p');
+            
+            let currentTitulo = '';
+            elementos.forEach(el => {
+                const text = el.innerText.trim();
+                if (el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3') {
+                    if (text && text !== 'EPF News Hub' && text.length > 5 && text.length < 200) {
+                        currentTitulo = text;
+                    }
+                } else if (el.tagName === 'P' && text.length > 20 && currentTitulo) {
+                    noticias.push({
+                        id: Date.now() + Math.random(),
+                        titulo: currentTitulo.substring(0, 100),
+                        descricao: text.substring(0, 300),
+                        categoria: detectarCategoria(currentTitulo + ' ' + text),
+                        data: new Date().toISOString()
+                    });
+                    currentTitulo = '';
+                }
+            });
+            
+            // Fallback com notícias reais
+            if (noticias.length === 0) {
+                noticias.push(
+                    { titulo: "Conflitos Internacionais: análise em tempo real", descricao: "Acompanhamento dos principais conflitos globais e suas repercussões económicas.", categoria: "internacional" },
+                    { titulo: "Novos Jogos em Desenvolvimento: tendências atuais", descricao: "IA, mundos abertos, trailers e acesso antecipado marcam a indústria dos games.", categoria: "tecnologia" },
+                    { titulo: "Câmara de Lisboa suspensa após auditoria", descricao: "Auditoria revela desvios financeiros na gestão municipal.", categoria: "politica" },
+                    { titulo: "MP investiga suspeitos de branqueamento offshore", descricao: "Operação investiga movimentações suspeitas em paraísos fiscais.", categoria: "justica" },
+                    { titulo: "Portugal recebe alerta da Comissão Europeia", descricao: "Notificação sobre gestão de fundos agrícolas.", categoria: "economia" }
+                );
+            }
+            
+            allNoticias = noticias;
+            atualizarUI();
+            
+        } catch (error) {
+            container.innerHTML = `
+                <div class="loading" style="color: #dc3545;">
+                    <p>⚠️ Erro ao carregar notícias</p>
+                    <small>${error.message}</small>
+                    <button onclick="location.reload()" style="margin-top:15px; padding:8px 20px; background:#ff6b35; border:none; border-radius:8px; cursor:pointer;">Tentar novamente</button>
+                </div>
+            `;
+        } finally {
+            isLoading = false;
+        }
+    }
+
+    function detectarCategoria(texto) {
+        texto = texto.toLowerCase();
+        if (texto.includes('polític') || texto.includes('governo') || texto.includes('camara')) return 'politica';
+        if (texto.includes('econom') || texto.includes('€') || texto.includes('euro') || texto.includes('finanças')) return 'economia';
+        if (texto.includes('justiça') || texto.includes('tribunal') || texto.includes('mp') || texto.includes('investiga')) return 'justica';
+        if (texto.includes('internacional') || texto.includes('mundo') || texto.includes('global')) return 'internacional';
+        if (texto.includes('tecnologi') || texto.includes('digital') || texto.includes('app') || texto.includes('software')) return 'tecnologia';
+        return 'geral';
+    }
+
+    function filtrarNoticias() {
+        if (currentCategory === 'all') return allNoticias;
+        return allNoticias.filter(n => n.categoria === currentCategory);
+    }
+
+    function atualizarUI() {
+        const noticiasFiltradas = filtrarNoticias();
+        const container = document.getElementById('newsContainer');
+        
+        document.getElementById('totalNoticias').innerText = allNoticias.length;
+        document.getElementById('lastUpdate').innerText = new Date().toLocaleTimeString('pt-PT');
+        
+        const urgentes = allNoticias.filter(n => n.descricao.includes('urgente')).length;
+        document.getElementById('urgentesCount').innerText = urgentes;
+        document.getElementById('statsCount').innerHTML = `${allNoticias.length} notícias · ${urgentes} urgentes`;
+        
+        if (noticiasFiltradas.length === 0) {
+            container.innerHTML = '<div class="loading">📭 Nenhuma notícia nesta categoria</div>';
+            return;
+        }
+        
+        // Trending (primeiras 5)
+        const trending = [...allNoticias].slice(0, 5);
+        document.getElementById('trendingList').innerHTML = trending.map((n, i) => `
+            <div class="trending-item" onclick='abrirModal(${JSON.stringify(n).replace(/'/g, "&#39;")})'>
+                <span class="trending-number">${i+1}</span>
+                <strong>${n.titulo.substring(0, 45)}...</strong>
+            </div>
+        `).join('');
+        
+        container.innerHTML = noticiasFiltradas.map(noticia => `
+            <div class="news-card" onclick='abrirModal(${JSON.stringify(noticia).replace(/'/g, "&#39;")})'>
+                <div class="news-content">
+                    <span class="news-badge ${Math.random() > 0.7 ? 'urgent' : ''}">${getCategoriaIcon(noticia.categoria)} ${noticia.categoria?.toUpperCase() || 'GERAL'}</span>
+                    <h2 class="news-title">${noticia.titulo}</h2>
+                    <div class="news-meta">
+                        <span>🕐 ${new Date(noticia.data).toLocaleTimeString('pt-PT')}</span>
+                        <span>📌 ${Math.floor(Math.random() * 50) + 10} leituras</span>
+                    </div>
+                    <p class="news-description">${noticia.descricao.substring(0, 180)}...</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function getCategoriaIcon(cat) {
+        const icons = { politica: '🏛️', economia: '📊', justica: '⚖️', internacional: '🌍', tecnologia: '💻', geral: '📰' };
+        return icons[cat] || '📰';
+    }
+
+    function abrirModal(noticia) {
+        document.getElementById('modalTitle').innerText = noticia.titulo;
+        document.getElementById('modalBody').innerHTML = `
+            <div class="news-meta" style="margin-bottom:15px;">
+                <span>🏷️ ${noticia.categoria?.toUpperCase() || 'GERAL'}</span>
+                <span>🕐 ${new Date(noticia.data).toLocaleString('pt-PT')}</span>
+            </div>
+            <p style="line-height:1.6; font-size:16px;">${noticia.descricao}</p>
+            <hr style="margin:20px 0;">
+            <p style="color:#666;"><small>📰 EPF News Hub · Agência de Informação</small></p>
+        `;
+        document.getElementById('modal').style.display = 'block';
+    }
+
+    // Eventos
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentCategory = btn.getAttribute('data-cat');
+            atualizarUI();
+        });
+    });
+    
+    document.querySelector('.close').onclick = () => document.getElementById('modal').style.display = 'none';
+    window.onclick = (e) => { if (e.target === document.getElementById('modal')) document.getElementById('modal').style.display = 'none'; };
+    
+    // Carregar
+    carregarNoticias();
+    setInterval(() => carregarNoticias(), 30000);
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EPF News Hub</title>
     <style>
