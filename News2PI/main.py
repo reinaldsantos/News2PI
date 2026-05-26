@@ -3,8 +3,6 @@
 import asyncio
 import json
 import re
-import uuid
-import unicodedata
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
@@ -14,14 +12,12 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, StreamingResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
-app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 API_TOKEN = "epf2026_secret"
 CATEGORIES = [
@@ -171,128 +167,6 @@ def seed_data():
         })
 
 
-RSS_FEEDS = [
-    "https://rss.cnn.com/rss/edition.rss",
-    "https://sicnoticias.pt/rss",
-]
-
-CATEGORY_MAP = {
-    "world": "Internacional",
-    "politics": "Política",
-    "business": "Economia",
-    "technology": "Tecnologia",
-    "sport": "Desporto",
-    "sports": "Desporto",
-    "justice": "Justiça",
-    "health": "Sociedade",
-    "investigation": "Investigação",
-    "corrupcao": "Corrupção",
-}
-
-
-def slugify(value: str) -> str:
-    value = str(value or "").strip().lower()
-    value = unicodedata.normalize("NFKD", value)
-    value = value.encode("ascii", "ignore").decode("ascii")
-    value = re.sub(r"[^a-z0-9]+", "-", value)
-    return re.sub(r"(^-|-$)", "", value)
-
-
-def parse_rss_datetime(value: Optional[str]) -> str:
-    if not value:
-        return datetime.utcnow().isoformat() + "Z"
-    try:
-        dt = parsedate_to_datetime(value)
-        if dt.tzinfo is not None:
-            dt = dt.astimezone(timezone.utc)
-        return dt.replace(tzinfo=timezone.utc).isoformat().replace("+00:00", "Z")
-    except Exception:
-        return datetime.utcnow().isoformat() + "Z"
-
-
-def rss_item_exists(url: str, title: str) -> bool:
-    normalized_url = (url or "").strip().lower()
-    normalized_title = (title or "").strip().lower()
-    return any(
-        (item.get("url", "").strip().lower() == normalized_url)
-        or (item.get("title", "").strip().lower() == normalized_title)
-        for item in database
-    )
-
-
-def normalize_rss_category(value: str) -> str:
-    if not value:
-        return "Internacional"
-    key = str(value).strip().lower()
-    return CATEGORY_MAP.get(key, value.title())
-
-
-def fetch_rss_feed(url: str) -> List[Dict[str, Any]]:
-    try:
-        with urllib.request.urlopen(url, timeout=15) as response:
-            xml = response.read()
-
-        root = ET.fromstring(xml)
-        channel = root.find("channel")
-        if channel is None:
-            return []
-
-        stories: List[Dict[str, Any]] = []
-        for item in channel.findall("item"):
-            title = (item.findtext("title") or "").strip()
-            link = (item.findtext("link") or "").strip()
-            description = (item.findtext("description") or "").strip()
-            category = normalize_rss_category(item.findtext("category") or "")
-            pub_date = parse_rss_datetime(item.findtext("pubDate") or "")
-            image_url = ""
-            enclosure = item.find("enclosure")
-            if enclosure is not None and enclosure.attrib.get("type", "").startswith("image"):
-                image_url = enclosure.attrib.get("url", "").strip()
-
-            stories.append({
-                "id": str(uuid.uuid4()),
-                "title": title,
-                "content": description,
-                "category": category,
-                "source": url,
-                "author": "Importador RSS",
-                "tags": [],
-                "image_url": image_url,
-                "priority": "normal",
-                "timestamp": pub_date,
-                "views": 0,
-                "status": "published",
-                "url": link,
-            })
-        return stories
-    except Exception as exc:
-        print(f"RSS import error for {url}: {exc}")
-        return []
-
-
-async def rss_import_worker():
-    while True:
-        seed_data()
-        for feed in RSS_FEEDS:
-            for story in fetch_rss_feed(feed):
-                if rss_item_exists(story["url"], story["title"]):
-                    continue
-                database.insert(0, story)
-                await broadcast("new_article", story)
-        await asyncio.sleep(60 * 5)
-
-
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(rss_import_worker())
-
-
-@app.get("/noticias/{category}/{slug}", response_class=HTMLResponse)
-def article_page(request: Request, category: str, slug: str):
-    seed_data()
-    return templates.TemplateResponse("index.html", {"request": request, "categories": CATEGORIES})
-
-
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     seed_data()
@@ -388,4 +262,4 @@ async def stream():
             if queue in subscribers:
                 subscribers.remove(queue)
 
-    return StreamingResponse(events(), media_type="text/event-stream")
+    return StreamingResponse(events(), media_type="text/event-stream") 
