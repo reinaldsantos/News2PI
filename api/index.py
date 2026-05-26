@@ -1,8 +1,9 @@
-from pathlib import Path
 import sys
+import os
+from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+root_dir = str(Path(__file__).resolve().parent.parent)
+sys.path.append(root_dir)
+os.chdir(root_dir)
 
-from main import app  # noqa: E402
+from main import app
