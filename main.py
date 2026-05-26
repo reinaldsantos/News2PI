@@ -12,11 +12,12 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
-app = FastAPI()
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(_file_).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
+app = FastAPI()
 API_TOKEN = "epf2026_secret"
+
 CATEGORIES = ["Todas", "Corrupção", "Política", "Justiça", "Economia", "Internacional", "Sociedade", "Investigação"]
 
 database: List[Dict[str, Any]] = []
@@ -76,6 +77,7 @@ def seed_data():
         "source": "Sistema",
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "views": 0,
+        "url": "#"
     })
 
 
@@ -145,3 +147,8 @@ async def stream():
                 subscribers.remove(queue)
     
     return StreamingResponse(events(), media_type="text/event-stream")
+
+
+if _name_ == "_main_":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
