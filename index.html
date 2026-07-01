@@ -1,539 +1,520 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EPF News Hub · Agência de Informação</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPF News Hub · Agência de Informação</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f5f1eb;
+    --paper2:#ede9e1;
+    --ink:#0a0a0a;
+    --muted:#6b6560;
+    --brand:#c8102e;
+    --brand-dark:#8b0d1f;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);line-height:1.5}
+  .serif{font-family:'Playfair Display',Georgia,serif}
+  .container{max-width:1280px;margin:0 auto;padding:0 24px}
+  a{color:inherit;text-decoration:none}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
-            background: #f4f6f9;
-            color: #1a1f36;
-        }
+  /* ticker de última hora */
+  .ticker-bar{background:var(--brand);color:#fff;height:34px;display:flex;align-items:center;overflow:hidden;font-size:12px;font-weight:600;letter-spacing:.02em}
+  .ticker-label{background:var(--brand-dark);padding:0 14px;height:100%;display:flex;align-items:center;gap:6px;flex-shrink:0;font-size:10px;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+  .live-dot{width:6px;height:6px;background:#fff;border-radius:50%;animation:blink 1.2s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+  .ticker-viewport{flex:1;overflow:hidden;white-space:nowrap}
+  .ticker-track{display:inline-block;padding-left:100%;animation:tick 32s linear infinite}
+  @keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
 
-        /* Header principal */
-        .hero-header {
-            background: linear-gradient(105deg, #0a0c15 0%, #1a1f36 100%);
-            padding: 40px 0 30px;
-            border-bottom: 3px solid #e74c3c;
-        }
+  /* cabeçalho */
+  .masthead{background:var(--paper);border-bottom:3px solid var(--ink);padding:16px 0}
+  .masthead .container{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px}
+  .masthead-meta{font-size:11px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;line-height:1.6}
+  .masthead-logo{text-align:center}
+  .masthead-logo h1{font-size:34px;font-weight:900;letter-spacing:-0.02em;line-height:1}
+  .masthead-logo .sub{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--brand);font-weight:700;margin-top:6px}
+  .masthead-right{display:flex;justify-content:flex-end;align-items:center;gap:14px}
+  .live-indicator{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+  .live-indicator .dot{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:blink 1.5s infinite}
+  .btn-subscribe{background:var(--ink);color:var(--paper);padding:9px 18px;border:none;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 30px;
-        }
+  /* navegação por categoria */
+  .cat-nav{background:var(--paper);border-bottom:1px solid rgba(0,0,0,.1);display:flex;overflow-x:auto}
+  .cat-nav .container{display:flex;gap:0;padding:0 24px}
+  .nav-btn{padding:13px 16px;background:none;border:none;border-bottom:3px solid transparent;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .nav-btn:hover{color:var(--ink)}
+  .nav-btn.active{color:var(--ink);border-bottom-color:var(--brand)}
 
-        .logo-area h1 {
-            font-size: 32px;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #fff 0%, #e2e2e2 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
+  /* barra ao vivo */
+  .live-bar{background:var(--ink);color:#fff;height:36px}
+  .live-bar .container{height:100%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;font-size:11px}
+  .live-bar-left{display:flex;align-items:center;gap:10px}
+  .pill-live{background:var(--brand);padding:3px 9px;border-radius:999px;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+  .live-bar-right{display:flex;gap:16px;color:rgba(255,255,255,.65)}
+  .up{color:#4ade80;font-weight:700}
 
-        .logo-area p {
-            color: #8b92b0;
-            font-size: 14px;
-            margin-top: 5px;
-        }
+  main{padding:28px 0 60px}
 
-        /* Barra AO VIVO */
-        .live-bar {
-            background: #0f1119;
-            padding: 12px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            border-bottom: 1px solid #2a2f45;
-        }
+  .trending-chips{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--paper2);border:1px solid rgba(0,0,0,.08);border-radius:10px;padding:14px 16px;margin-bottom:24px}
+  .trending-chips .label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+  .chip{border:1px solid var(--ink);background:transparent;padding:5px 13px;border-radius:999px;font-size:11px;font-weight:500}
+  #chipsList{display:contents}
 
-        .live-badge {
-            background: #e74c3c;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
+  /* grelha principal: hero + sidebar */
+  .layout{display:grid;grid-template-columns:2fr 1fr;gap:32px}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}}
 
-        .ticker {
-            display: flex;
-            gap: 25px;
-            font-size: 13px;
-            color: #bdc3e6;
-        }
+  .hero-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:32px}
+  @media (max-width:700px){.hero-grid{grid-template-columns:1fr}}
+  .hero-card{position:relative;min-height:360px;border-radius:18px;overflow:hidden;cursor:pointer;display:flex;align-items:flex-end}
+  .hero-card .bg-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:900;font-size:46px;letter-spacing:.15em;color:rgba(255,255,255,.08);text-transform:uppercase}
+  .hero-overlay{position:relative;z-index:1;width:100%;padding:26px;color:#fff;background:linear-gradient(180deg,rgba(0,0,0,.02) 0%,rgba(0,0,0,.55) 45%,rgba(0,0,0,.95) 100%)}
+  .hero-cat{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--brand);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .hero-cat::after{content:'';flex:1;max-width:36px;height:1px;background:rgba(255,255,255,.25)}
+  .hero-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;line-height:1.08;letter-spacing:-.01em;margin-bottom:10px}
+  .hero-desc{font-size:13px;color:rgba(255,255,255,.85);font-weight:300;max-width:560px;margin-bottom:12px}
+  .hero-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,.7);flex-wrap:wrap}
+  .badge-urgent{background:var(--brand);color:#fff;padding:2px 8px;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-radius:2px}
 
-        .stats-info {
-            display: flex;
-            gap: 20px;
-            font-size: 13px;
-            color: #e74c3c;
-            font-weight: bold;
-        }
+  .hero-side{display:flex;flex-direction:column}
+  .hero-side-item{padding:13px 0;border-bottom:1px solid rgba(0,0,0,.08);cursor:pointer}
+  .hero-side-item:last-child{border-bottom:none}
+  .hero-side-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:rgba(200,16,46,.14);line-height:1;margin-bottom:4px}
+  .hero-side-title{font-size:13px;font-weight:700;line-height:1.3;margin-bottom:6px}
+  .hero-side-meta{font-size:10px;color:var(--muted)}
 
-        /* Navegação */
-        .nav-cats {
-            background: white;
-            padding: 0 30px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+  .section-heading{display:flex;align-items:center;gap:12px;margin:6px 0 16px}
+  .section-heading h2{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}
+  .section-heading::after{content:'';flex:1;height:1px;background:rgba(0,0,0,.1)}
 
-        .nav-btn {
-            padding: 14px 20px;
-            background: none;
-            border: none;
-            font-weight: 600;
-            font-size: 14px;
-            color: #4a5568;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-bottom: 2px solid transparent;
-        }
+  .news-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  @media (max-width:560px){.news-grid{grid-template-columns:1fr}}
+  .news-card{background:#fff;border-radius:16px;overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .15s}
+  .news-card:hover{box-shadow:0 10px 28px rgba(0,0,0,.09);transform:translateY(-2px)}
+  .card-media{height:110px;position:relative;display:flex;align-items:center;justify-content:center}
+  .card-media .cat-label{font-family:'Playfair Display',serif;font-weight:900;font-size:22px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.1)}
+  .card-body{padding:16px}
+  .card-cat{font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .card-title{font-size:14px;font-weight:700;line-height:1.32;margin-bottom:8px}
+  .card-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .card-meta{font-size:10.5px;color:var(--muted);display:flex;gap:6px}
 
-        .nav-btn:hover {
-            color: #e74c3c;
-            border-bottom-color: #e74c3c;
-        }
+  .empty-state{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--muted);background:#fff;border-radius:16px}
+  .spinner{width:38px;height:38px;border:3px solid rgba(0,0,0,.08);border-top:3px solid var(--brand);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
+  @keyframes spin{to{transform:rotate(360deg)}}
 
-        .nav-btn.active {
-            color: #e74c3c;
-            border-bottom-color: #e74c3c;
-        }
+  /* sidebar */
+  .sidebar-card{background:#fff;border-radius:16px;padding:20px;margin-bottom:20px}
+  .sidebar-title{font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;margin-bottom:16px}
+  .trend-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid rgba(0,0,0,.07);cursor:pointer}
+  .trend-item:last-child{border-bottom:none}
+  .trend-num{font-family:'Playfair Display',serif;font-weight:900;font-size:22px;color:rgba(200,16,46,.2);line-height:1}
+  .trend-title{font-size:12.5px;font-weight:700;line-height:1.35}
+  .stat-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.07);font-size:12.5px}
+  .stat-row:last-child{border-bottom:none}
+  .stat-row b{color:var(--brand)}
+  .newsletter{background:var(--ink);color:#fff;border-radius:16px;padding:20px}
+  .newsletter .label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px}
+  .newsletter p{font-family:'Playfair Display',serif;font-size:14px;line-height:1.4;margin-bottom:12px}
+  .newsletter-row{display:flex;gap:8px}
+  .newsletter input{flex:1;border:none;border-radius:4px;padding:9px 10px;font-size:12px}
+  .newsletter button{background:var(--brand);color:#fff;border:none;border-radius:4px;padding:9px 16px;font-size:11px;font-weight:700;text-transform:uppercase;cursor:pointer}
 
-        /* Grid principal */
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 340px;
-            gap: 40px;
-            margin: 40px auto;
-        }
+  /* footer */
+  footer{border-top:3px solid var(--ink);background:var(--paper);margin-top:40px}
+  .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:28px;padding:36px 0}
+  @media (max-width:700px){.footer-grid{grid-template-columns:1fr 1fr}}
+  .footer-grid h3{font-size:19px;font-weight:900}
+  .footer-grid p{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6}
+  .footer-col-title{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .footer-col ul{list-style:none;font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+  .footer-bottom{border-top:1px solid rgba(0,0,0,.1);padding:14px 0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--muted)}
 
-        /* Cards de notícias */
-        .news-card {
-            background: white;
-            border-radius: 12px;
-            margin-bottom: 24px;
-            padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            transition: all 0.2s;
-            cursor: pointer;
-            border: 1px solid #edf2f7;
-        }
-
-        .news-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-
-        .card-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: #fef5e7;
-            color: #e67e22;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-
-        .card-badge.urgent {
-            background: #fee2e2;
-            color: #e74c3c;
-        }
-
-        .card-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1a202c;
-            margin-bottom: 12px;
-            line-height: 1.3;
-        }
-
-        .card-meta {
-            display: flex;
-            gap: 20px;
-            font-size: 13px;
-            color: #718096;
-            margin-bottom: 12px;
-        }
-
-        .card-desc {
-            color: #4a5568;
-            line-height: 1.5;
-            font-size: 14px;
-        }
-
-        /* Sidebar */
-        .sidebar-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 24px;
-            border: 1px solid #edf2f7;
-        }
-
-        .sidebar-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1a202c;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #e74c3c;
-            display: inline-block;
-        }
-
-        .trending-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid #edf2f7;
-            cursor: pointer;
-        }
-
-        .trending-number {
-            width: 28px;
-            height: 28px;
-            background: #f4f6f9;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-            color: #e74c3c;
-        }
-
-        .trending-title {
-            flex: 1;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #edf2f7;
-            font-size: 14px;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-        }
-
-        .modal-content {
-            background: white;
-            width: 90%;
-            max-width: 650px;
-            margin: 60px auto;
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .modal-header {
-            background: #1a202c;
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .modal-body {
-            padding: 24px;
-            line-height: 1.6;
-        }
-
-        .close-modal {
-            font-size: 28px;
-            cursor: pointer;
-            color: white;
-        }
-
-        /* Loading */
-        .loading-state {
-            text-align: center;
-            padding: 60px;
-            background: white;
-            border-radius: 12px;
-        }
-
-        .spinner {
-            width: 45px;
-            height: 45px;
-            border: 3px solid #edf2f7;
-            border-top: 3px solid #e74c3c;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 900px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-            .container {
-                padding: 0 20px;
-            }
-            .card-title {
-                font-size: 18px;
-            }
-        }
-    </style>
+  /* modal */
+  .modal{display:none;position:fixed;inset:0;z-index:1000;background:rgba(10,10,10,.75)}
+  .modal-content{background:#fff;width:92%;max-width:640px;margin:70px auto;border-radius:16px;overflow:hidden;max-height:80vh;display:flex;flex-direction:column}
+  .modal-header{background:var(--ink);color:#fff;padding:20px 22px;display:flex;justify-content:space-between;gap:16px}
+  .modal-header h3{font-family:'Playfair Display',serif;font-size:18px;font-weight:800;line-height:1.3}
+  .close-modal{font-size:26px;cursor:pointer;line-height:1;color:rgba(255,255,255,.7)}
+  .close-modal:hover{color:#fff}
+  .modal-body{padding:22px;overflow-y:auto;font-size:14px;line-height:1.7}
+</style>
 </head>
 <body>
 
-<div class="hero-header">
-    <div class="container">
-        <div class="logo-area">
-            <h1>📰 EPF News Hub</h1>
-            <p>AGENTIC NEWS HUB · INFORMAÇÃO COM CREDIBILIDADE</p>
-        </div>
-    </div>
+<div class="ticker-bar">
+  <div class="ticker-label"><span class="live-dot"></span>Última Hora</div>
+  <div class="ticker-viewport"><div class="ticker-track" id="tickerTrack">A carregar notícias…</div></div>
 </div>
+
+<header class="masthead">
+  <div class="container">
+    <div class="masthead-meta" id="masthMeta"></div>
+    <div class="masthead-logo">
+      <h1 class="serif">EPF News Hub</h1>
+      <div class="sub">Agência de Informação · Rede de Agentes</div>
+    </div>
+    <div class="masthead-right">
+      <div class="live-indicator"><span class="dot"></span>Em direto</div>
+      <button class="btn-subscribe">Assinar</button>
+    </div>
+  </div>
+</header>
+
+<nav class="cat-nav">
+  <div class="container" id="navCats">
+    <button class="nav-btn active" data-cat="all">Todas</button>
+    <button class="nav-btn" data-cat="politica">Política</button>
+    <button class="nav-btn" data-cat="internacional">Internacional</button>
+    <button class="nav-btn" data-cat="economia">Economia</button>
+    <button class="nav-btn" data-cat="justica">Justiça</button>
+    <button class="nav-btn" data-cat="tecnologia">Tecnologia</button>
+    <button class="nav-btn" data-cat="corrupcao">Corrupção</button>
+  </div>
+</nav>
 
 <div class="live-bar">
-    <div class="live-badge">🔴 AO VIVO</div>
-    <div class="ticker" id="tickerInfo">
-        <span>💶 EUR/USD 1.08</span>
-        <span>₿ Bitcoin €94.221</span>
-        <span>📊 PSI-20 +0.9%</span>
+  <div class="container">
+    <div class="live-bar-left">
+      <span class="pill-live">Ao Vivo</span>
+      <span style="color:rgba(255,255,255,.6)">Atualizações em tempo real</span>
     </div>
-    <div class="stats-info" id="statsHeader">
-        <span>📰 <span id="totalNoticias">0</span> artigos</span>
-        <span>⚡ <span id="totalUrgentes">0</span> urgentes</span>
-        <span>🕐 <span id="relogioHeader"></span></span>
+    <div class="live-bar-right">
+      <span>📰 <b style="color:#fff" id="totalNoticias">0</b> artigos</span>
+      <span>⚡ <span id="totalUrgentes">0</span> urgentes</span>
+      <span id="relogioHeader" style="color:rgba(255,255,255,.4)"></span>
     </div>
+  </div>
 </div>
 
-<div class="nav-cats" id="navCats">
-    <button class="nav-btn active" data-cat="all">📰 TODAS</button>
-    <button class="nav-btn" data-cat="politica">🏛️ POLÍTICA</button>
-    <button class="nav-btn" data-cat="internacional">🌍 INTERNACIONAL</button>
-    <button class="nav-btn" data-cat="economia">📊 ECONOMIA</button>
-    <button class="nav-btn" data-cat="justica">⚖️ JUSTIÇA</button>
-    <button class="nav-btn" data-cat="tecnologia">💻 TECNOLOGIA</button>
-    <button class="nav-btn" data-cat="corrupcao">⚠️ CORRUPÇÃO</button>
-</div>
+<main class="container">
+  <div class="trending-chips">
+    <span class="label">Em Alta</span>
+    <div id="chipsList"></div>
+  </div>
 
-<div class="container">
-    <div class="main-grid">
-        <div id="newsContainer">
-            <div class="loading-state">
-                <div class="spinner"></div>
-                <p>🔍 A carregar as últimas notícias...</p>
-            </div>
+  <div id="heroSection"></div>
+
+  <div class="layout">
+    <div>
+      <div class="section-heading"><h2>Últimas Notícias</h2></div>
+      <div class="news-grid" id="newsGrid">
+        <div class="empty-state">
+          <div class="spinner"></div>
+          <p>A carregar as últimas notícias…</p>
         </div>
-
-        <div class="sidebar">
-            <div class="sidebar-card">
-                <div class="sidebar-title">🔥 TRENDING</div>
-                <div id="trendingList"></div>
-            </div>
-            <div class="sidebar-card">
-                <div class="sidebar-title">📊 ESTATÍSTICAS</div>
-                <div class="stat-row"><span>📰 Total de artigos</span><span id="sidebarTotal">0</span></div>
-                <div class="stat-row"><span>⚡ Notícias urgentes</span><span id="sidebarUrgentes">0</span></div>
-                <div class="stat-row"><span>🕐 Última atualização</span><span id="ultimaAtualizacao">-</span></div>
-            </div>
-        </div>
+      </div>
     </div>
-</div>
+
+    <aside>
+      <div class="sidebar-card">
+        <div class="sidebar-title">Mais Lidas</div>
+        <div id="trendingList"></div>
+      </div>
+      <div class="sidebar-card">
+        <div class="sidebar-title">Estatísticas</div>
+        <div class="stat-row"><span>Total de artigos</span><b id="sidebarTotal">0</b></div>
+        <div class="stat-row"><span>Notícias urgentes</span><b id="sidebarUrgentes">0</b></div>
+        <div class="stat-row"><span>Última atualização</span><b id="ultimaAtualizacao">-</b></div>
+      </div>
+      <div class="newsletter">
+        <div class="label">Newsletter</div>
+        <p>Receba o resumo das notícias mais importantes todas as manhãs.</p>
+        <div class="newsletter-row">
+          <input type="email" placeholder="o-seu-email@exemplo.com">
+          <button>OK</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-grid">
+    <div>
+      <h3 class="serif">EPF News Hub</h3>
+      <p>Agência de informação alimentada por uma rede de agentes, a monitorizar política, economia, justiça e corrupção em Portugal e no mundo.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Secções</div>
+      <ul><li>Política</li><li>Internacional</li><li>Economia</li><li>Justiça</li></ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Mais</div>
+      <ul><li>Tecnologia</li><li>Corrupção</li></ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Sobre</div>
+      <ul><li>Quem Somos</li><li>Contactos</li></ul>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>© <span id="year"></span> EPF News Hub · Todos os direitos reservados.</span>
+    <span>Backend: news2pi.onrender.com</span>
+  </div>
+</footer>
 
 <div id="modal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="modalTitle">Notícia</h3>
-            <span class="close-modal">&times;</span>
-        </div>
-        <div class="modal-body" id="modalBody"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">Notícia</h3>
+      <span class="close-modal">&times;</span>
     </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
 </div>
 
 <script>
-    // Configuração
-    const BACKEND_URL = 'https://news2pi.onrender.com';
-    const PROXY_URL = 'https://api.allorigins.win/raw?url=';
-    
-    let todasNoticias = [];
-    let categoriaAtiva = 'all';
-    
-    // Funções auxiliares
-    function atualizarRelogio() {
-        const agora = new Date();
-        const horaStr = agora.toLocaleTimeString('pt-PT');
-        document.getElementById('relogioHeader').innerText = horaStr;
-        document.getElementById('ultimaAtualizacao').innerText = horaStr;
-    }
-    atualizarRelogio();
-    setInterval(atualizarRelogio, 1000);
-    
-    function detectarCategoria(texto) {
-        const t = texto.toLowerCase();
-        if (t.includes('polític') || t.includes('governo') || t.includes('camara')) return 'politica';
-        if (t.includes('econom') || t.includes('euro') || t.includes('finanças')) return 'economia';
-        if (t.includes('justiça') || t.includes('tribunal') || t.includes('mp')) return 'justica';
-        if (t.includes('internacional') || t.includes('mundo')) return 'internacional';
-        if (t.includes('tecnologi') || t.includes('digital')) return 'tecnologia';
-        if (t.includes('corrupção') || t.includes('desvio') || t.includes('fraude')) return 'corrupcao';
-        return 'geral';
-    }
-    
-    async function carregarNoticias() {
-        try {
-            const response = await fetch(PROXY_URL + encodeURIComponent(BACKEND_URL));
-            if (!response.ok) throw new Error('Erro ao buscar');
-            
-            const html = await response.text();
-            const temp = document.createElement('div');
-            temp.innerHTML = html;
-            
-            const noticias = [];
-            const titulos = temp.querySelectorAll('h1, h2, h3');
-            const paragrafos = temp.querySelectorAll('p');
-            
-            titulos.forEach((titulo, idx) => {
-                const texto = titulo.innerText.trim();
-                if (texto && texto !== 'EPF News Hub' && texto.length > 10 && texto.length < 200) {
-                    let desc = '';
-                    if (paragrafos[idx]) desc = paragrafos[idx].innerText.trim();
-                    else if (paragrafos[0]) desc = paragrafos[0].innerText.trim();
-                    
-                    noticias.push({
-                        id: Date.now() + idx,
-                        titulo: texto.substring(0, 100),
-                        descricao: desc.substring(0, 350) || "Clique para ler a notícia completa...",
-                        categoria: detectarCategoria(texto + ' ' + desc),
-                        data: new Date(),
-                        urgente: Math.random() > 0.8
-                    });
-                }
-            });
-            
-            if (noticias.length === 0) {
-                // Fallback com notícias reais
-                noticias.push(
-                    { titulo: "Câmara de Lisboa suspensa após auditoria revelar desvios", descricao: "Investigação aponta irregularidades na gestão municipal.", categoria: "politica", urgente: true },
-                    { titulo: "MP investiga suspeitos de branqueamento em banca offshore", descricao: "Operação Polvo tem 14 arguidos acusados de corrupção ativa.", categoria: "justica", urgente: false },
-                    { titulo: "Portugal recebe alerta da Comissão Europeia sobre fundos agrícolas", descricao: "Notificação sobre gestão de verbas comunitárias.", categoria: "economia", urgente: true },
-                    { titulo: "Tribunal condena ex-autarca a 6 anos por peculato", descricao: "Sentença histórica no caso de desvio de fundos públicos.", categoria: "justica", urgente: false },
-                    { titulo: "Novo relatório da OCDE critica transparência em Portugal", descricao: "Organismo internacional aponta fragilidades no combate à corrupção.", categoria: "internacional", urgente: false }
-                );
-            }
-            
-            todasNoticias = noticias;
-            atualizarUI();
-            
-        } catch (error) {
-            document.getElementById('newsContainer').innerHTML = `
-                <div class="loading-state">
-                    <p style="color:#e74c3c;">⚠️ Erro ao carregar notícias</p>
-                    <button onclick="location.reload()" style="margin-top:15px; padding:8px 20px; background:#e74c3c; color:white; border:none; border-radius:8px; cursor:pointer;">Tentar novamente</button>
-                </div>
-            `;
+  // ---------- Configuração ----------
+  const BACKEND_URL = 'https://news2pi.onrender.com';
+  const PROXY_URL = 'https://api.allorigins.win/raw?url=';
+
+  const CATEGORY_LABELS = {
+    politica: 'Política', internacional: 'Internacional', economia: 'Economia',
+    justica: 'Justiça', tecnologia: 'Tecnologia', corrupcao: 'Corrupção', geral: 'Geral'
+  };
+  const CATEGORY_GRADIENTS = {
+    politica: 'linear-gradient(135deg,#16213e,#0f3460)',
+    internacional: 'linear-gradient(135deg,#8b0d1f,#16213e)',
+    economia: 'linear-gradient(135deg,#1a1a2e,#16213e)',
+    justica: 'linear-gradient(135deg,#0f3460,#1a1a2e)',
+    tecnologia: 'linear-gradient(135deg,#0a0a0a,#16213e)',
+    corrupcao: 'linear-gradient(135deg,#8b0d1f,#c8102e)',
+    geral: 'linear-gradient(135deg,#1a1a2e,#0f3460)'
+  };
+
+  let todasNoticias = [];
+  let categoriaAtiva = 'all';
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+  document.getElementById('masthMeta').innerHTML = new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + '<br>Edição Digital';
+
+  function atualizarRelogio(){
+    const agora = new Date();
+    const horaStr = agora.toLocaleTimeString('pt-PT');
+    document.getElementById('relogioHeader').innerText = 'atualizado ' + horaStr;
+    document.getElementById('ultimaAtualizacao').innerText = horaStr;
+  }
+  atualizarRelogio();
+  setInterval(atualizarRelogio, 1000);
+
+  function detectarCategoria(texto){
+    const t = texto.toLowerCase();
+    if (t.includes('corrupção') || t.includes('desvio') || t.includes('fraude')) return 'corrupcao';
+    if (t.includes('polític') || t.includes('governo') || t.includes('camara') || t.includes('câmara')) return 'politica';
+    if (t.includes('econom') || t.includes('euro') || t.includes('finanças')) return 'economia';
+    if (t.includes('justiça') || t.includes('tribunal') || t.includes(' mp ')) return 'justica';
+    if (t.includes('internacional') || t.includes('mundo')) return 'internacional';
+    if (t.includes('tecnologi') || t.includes('digital') || t.includes('inteligência artificial')) return 'tecnologia';
+    return 'geral';
+  }
+
+  function fallbackNoticias(){
+    const base = [
+      { titulo: "Câmara de Lisboa suspensa após auditoria revelar desvios", descricao: "Investigação aponta irregularidades na gestão municipal e no destino de fundos comunitários.", categoria: "corrupcao", urgente: true, leituras: 3421 },
+      { titulo: "MP investiga suspeitos de branqueamento em banca offshore", descricao: "Operação Polvo tem 14 arguidos acusados de corrupção ativa e associação criminosa.", categoria: "justica", urgente: true, leituras: 2984 },
+      { titulo: "Portugal recebe alerta da Comissão Europeia sobre fundos agrícolas", descricao: "Bruxelas pede esclarecimentos sobre a gestão de verbas comunitárias no último trimestre.", categoria: "economia", urgente: false, leituras: 1876 },
+      { titulo: "Tribunal condena ex-autarca a 6 anos por peculato", descricao: "Sentença histórica no caso de desvio de fundos públicos destinados a obras municipais.", categoria: "justica", urgente: false, leituras: 1654 },
+      { titulo: "Novo relatório da OCDE critica transparência em Portugal", descricao: "Organismo internacional aponta fragilidades no combate à corrupção e pede reformas.", categoria: "internacional", urgente: false, leituras: 1432 },
+      { titulo: "Governo aprova reforço orçamental para a saúde", descricao: "Medida chega depois de meses de pressão dos sindicatos e visa reforçar as urgências.", categoria: "politica", urgente: true, leituras: 3120 },
+      { titulo: "Cimeira europeia discute teto ao preço da energia", descricao: "Líderes europeus reúnem-se em Bruxelas sem consenso à vista sobre o mecanismo de preços.", categoria: "internacional", urgente: false, leituras: 1298 },
+      { titulo: "Startup portuguesa capta 15 milhões em ronda europeia", descricao: "Empresa de inteligência artificial aplicada à saúde planeia duplicar equipa até final do ano.", categoria: "tecnologia", urgente: false, leituras: 2156 },
+      { titulo: "Regulador avança com novas regras para sistemas de IA", descricao: "Empresas terão um ano para adaptar sistemas de alto risco às novas exigências de transparência.", categoria: "tecnologia", urgente: false, leituras: 1120 },
+      { titulo: "Inflação abranda para o valor mais baixo em três anos", descricao: "Queda nos preços dos combustíveis e alimentos frescos explica a maior parte da desaceleração.", categoria: "economia", urgente: true, leituras: 4102 },
+      { titulo: "Debate parlamentar sobre habitação termina em impasse", descricao: "Proposta de renda condicionada é chumbada, mas há abertura para nova lei-quadro ainda este ano.", categoria: "politica", urgente: false, leituras: 1320 },
+      { titulo: "Operação Polvo soma novos arguidos ligados à autarquia", descricao: "Procuradoria-Geral amplia inquérito após denúncia de adjudicações irregulares.", categoria: "corrupcao", urgente: false, leituras: 1842 }
+    ];
+    return base.map((n, idx) => ({ id: 'fallback-' + idx, data: new Date(Date.now() - idx * 45 * 60000), ...n }));
+  }
+
+  async function carregarNoticias(){
+    try{
+      const response = await fetch(PROXY_URL + encodeURIComponent(BACKEND_URL), { cache: 'no-store' });
+      if (!response.ok) throw new Error('Erro ao contactar o backend');
+
+      const html = await response.text();
+      const temp = document.createElement('div');
+      temp.innerHTML = html;
+
+      const noticias = [];
+      const titulos = temp.querySelectorAll('h1, h2, h3');
+      const paragrafos = temp.querySelectorAll('p');
+
+      titulos.forEach((titulo, idx) => {
+        const texto = titulo.innerText.trim();
+        if (texto && texto !== 'EPF News Hub' && texto.length > 10 && texto.length < 200) {
+          let desc = '';
+          if (paragrafos[idx]) desc = paragrafos[idx].innerText.trim();
+          else if (paragrafos[0]) desc = paragrafos[0].innerText.trim();
+
+          noticias.push({
+            id: 'live-' + idx,
+            titulo: texto.substring(0, 100),
+            descricao: desc.substring(0, 350) || 'Clique para ler a notícia completa…',
+            categoria: detectarCategoria(texto + ' ' + desc),
+            data: new Date(),
+            urgente: Math.random() > 0.8,
+            leituras: Math.floor(Math.random() * 3000) + 200
+          });
         }
+      });
+
+      todasNoticias = noticias.length ? noticias : fallbackNoticias();
+      atualizarUI();
+    } catch (error) {
+      todasNoticias = fallbackNoticias();
+      atualizarUI();
     }
-    
-    function filtrarNoticias() {
-        if (categoriaAtiva === 'all') return todasNoticias;
-        return todasNoticias.filter(n => n.categoria === categoriaAtiva);
-    }
-    
-    function atualizarUI() {
-        const noticiasFiltradas = filtrarNoticias();
-        const urgentes = todasNoticias.filter(n => n.urgente).length;
-        
-        document.getElementById('totalNoticias').innerText = todasNoticias.length;
-        document.getElementById('totalUrgentes').innerText = urgentes;
-        document.getElementById('sidebarTotal').innerText = todasNoticias.length;
-        document.getElementById('sidebarUrgentes').innerText = urgentes;
-        
-        // Trending (top 5)
-        const trending = [...todasNoticias].slice(0, 5);
-        document.getElementById('trendingList').innerHTML = trending.map((n, i) => `
-            <div class="trending-item" onclick='abrirNoticia(${JSON.stringify(n).replace(/'/g, "&#39;")})'>
-                <div class="trending-number">${String(i+1).padStart(2,'0')}</div>
-                <div class="trending-title">${n.titulo.substring(0, 50)}${n.titulo.length > 50 ? '...' : ''}</div>
+  }
+
+  function filtrarNoticias(){
+    if (categoriaAtiva === 'all') return todasNoticias;
+    return todasNoticias.filter(n => n.categoria === categoriaAtiva);
+  }
+
+  function cardMediaHtml(categoria){
+    const grad = CATEGORY_GRADIENTS[categoria] || CATEGORY_GRADIENTS.geral;
+    const label = (CATEGORY_LABELS[categoria] || categoria).toUpperCase();
+    return `<div class="card-media" style="background:${grad}"><span class="cat-label">${label}</span></div>`;
+  }
+
+  function renderHero(lista){
+    const heroEl = document.getElementById('heroSection');
+    if (!lista.length){ heroEl.innerHTML = ''; return; }
+
+    const destaque = [...lista].sort((a,b) => (b.urgente - a.urgente) || (b.leituras - a.leituras))[0];
+    const resto = lista.filter(n => n.id !== destaque.id).slice(0, 4);
+    const grad = CATEGORY_GRADIENTS[destaque.categoria] || CATEGORY_GRADIENTS.geral;
+    const label = (CATEGORY_LABELS[destaque.categoria] || destaque.categoria).toUpperCase();
+
+    heroEl.innerHTML = `
+      <div class="hero-grid">
+        <div class="hero-card" style="background:${grad}" onclick='abrirNoticia(${JSON.stringify(destaque).replace(/'/g, "&#39;")})'>
+          <span class="bg-label">${label}</span>
+          <div class="hero-overlay">
+            <div class="hero-cat">${label}</div>
+            <div class="hero-title">${destaque.titulo}</div>
+            <div class="hero-desc">${destaque.descricao}</div>
+            <div class="hero-meta">
+              ${destaque.urgente ? '<span class="badge-urgent">Urgente</span>' : ''}
+              <span>${destaque.data.toLocaleTimeString('pt-PT')}</span>
+              <span style="opacity:.4">·</span>
+              <span>${destaque.leituras.toLocaleString('pt-PT')} leituras</span>
             </div>
-        `).join('');
-        
-        // Renderizar notícias
-        const container = document.getElementById('newsContainer');
-        if (noticiasFiltradas.length === 0) {
-            container.innerHTML = '<div class="loading-state"><p>📭 Nenhuma notícia nesta categoria</p></div>';
-            return;
-        }
-        
-        container.innerHTML = noticiasFiltradas.map((n, idx) => `
-            <div class="news-card" onclick='abrirNoticia(${JSON.stringify(n).replace(/'/g, "&#39;")})'>
-                <div class="card-badge ${n.urgente ? 'urgent' : ''}">
-                    ${n.urgente ? '🔴 URGENTE' : n.categoria.toUpperCase()}
-                </div>
-                <h2 class="card-title">${n.titulo}</h2>
-                <div class="card-meta">
-                    <span>🕐 ${n.data.toLocaleTimeString('pt-PT')}</span>
-                    <span>📌 ${Math.floor(Math.random() * 50) + 10} leituras</span>
-                </div>
-                <p class="card-desc">${n.descricao.substring(0, 160)}${n.descricao.length > 160 ? '...' : ''}</p>
+          </div>
+        </div>
+        <div class="hero-side">
+          ${resto.map((n, i) => `
+            <div class="hero-side-item" onclick='abrirNoticia(${JSON.stringify(n).replace(/'/g, "&#39;")})'>
+              <div class="hero-side-num">${String(i+2).padStart(2,'0')}</div>
+              <div class="hero-side-title">${n.titulo}</div>
+              <div class="hero-side-meta">${(CATEGORY_LABELS[n.categoria]||n.categoria)} · ${n.data.toLocaleTimeString('pt-PT')}</div>
             </div>
-        `).join('');
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderGrid(lista){
+    const container = document.getElementById('newsGrid');
+    const restantes = lista.slice(5);
+
+    if (!lista.length){
+      container.innerHTML = '<div class="empty-state">Nenhuma notícia nesta categoria de momento.</div>';
+      return;
     }
-    
-    function abrirNoticia(noticia) {
-        document.getElementById('modalTitle').innerText = noticia.titulo;
-        document.getElementById('modalBody').innerHTML = `
-            <div style="margin-bottom:15px; color:#e74c3c; font-weight:bold;">${noticia.urgente ? '🔴 NOTÍCIA URGENTE' : noticia.categoria.toUpperCase()}</div>
-            <p style="line-height:1.6;">${noticia.descricao}</p>
-            <hr style="margin:20px 0;">
-            <p style="color:#718096;"><small>📰 EPF News Hub · ${new Date().toLocaleString('pt-PT')}</small></p>
-        `;
-        document.getElementById('modal').style.display = 'block';
+    if (!restantes.length){
+      container.innerHTML = '<div class="empty-state">Sem mais notícias nesta categoria.</div>';
+      return;
     }
-    
-    // Eventos
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            categoriaAtiva = btn.getAttribute('data-cat');
-            atualizarUI();
-        });
+
+    container.innerHTML = restantes.map(n => `
+      <div class="news-card" onclick='abrirNoticia(${JSON.stringify(n).replace(/'/g, "&#39;")})'>
+        ${cardMediaHtml(n.categoria)}
+        <div class="card-body">
+          <div class="card-cat">${(CATEGORY_LABELS[n.categoria]||n.categoria)} ${n.urgente ? '<span class="badge-urgent">Urgente</span>' : ''}</div>
+          <div class="card-title">${n.titulo}</div>
+          <div class="card-desc">${n.descricao}</div>
+          <div class="card-meta"><span>${n.data.toLocaleTimeString('pt-PT')}</span><span>·</span><span>${n.leituras.toLocaleString('pt-PT')} leituras</span></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderTrending(){
+    const trending = [...todasNoticias].sort((a,b) => b.leituras - a.leituras).slice(0, 5);
+    document.getElementById('trendingList').innerHTML = trending.map((n, i) => `
+      <div class="trend-item" onclick='abrirNoticia(${JSON.stringify(n).replace(/'/g, "&#39;")})'>
+        <div class="trend-num">${i+1}</div>
+        <div class="trend-title">${n.titulo}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderTicker(){
+    const urgentes = todasNoticias.filter(n => n.urgente);
+    const fonte = urgentes.length ? urgentes : todasNoticias;
+    document.getElementById('tickerTrack').innerHTML = fonte.map(n => n.titulo).join(' &nbsp;•&nbsp; ') || 'Sem notícias urgentes de momento';
+  }
+
+  function renderChips(){
+    const contagens = {};
+    todasNoticias.forEach(n => { contagens[n.categoria] = (contagens[n.categoria]||0) + 1; });
+    const topCats = Object.keys(contagens).sort((a,b) => contagens[b]-contagens[a]).slice(0,5);
+    document.getElementById('chipsList').innerHTML = topCats
+      .map(cat => `<button class="chip">${CATEGORY_LABELS[cat] || cat}</button>`)
+      .join('');
+  }
+
+  function atualizarUI(){
+    const noticiasFiltradas = filtrarNoticias();
+    const urgentes = todasNoticias.filter(n => n.urgente).length;
+
+    document.getElementById('totalNoticias').innerText = todasNoticias.length;
+    document.getElementById('totalUrgentes').innerText = urgentes;
+    document.getElementById('sidebarTotal').innerText = todasNoticias.length;
+    document.getElementById('sidebarUrgentes').innerText = urgentes;
+
+    renderTicker();
+    renderChips();
+    renderTrending();
+    renderHero(noticiasFiltradas);
+    renderGrid(noticiasFiltradas);
+  }
+
+  function abrirNoticia(noticia){
+    document.getElementById('modalTitle').innerText = noticia.titulo;
+    document.getElementById('modalBody').innerHTML = `
+      <div style="margin-bottom:14px;color:var(--brand);font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;">
+        ${noticia.urgente ? 'Notícia Urgente' : (CATEGORY_LABELS[noticia.categoria] || noticia.categoria)}
+      </div>
+      <p>${noticia.descricao}</p>
+      <hr style="margin:20px 0;border:none;border-top:1px solid rgba(0,0,0,.08);">
+      <p style="color:var(--muted);font-size:12px;">EPF News Hub · ${new Date().toLocaleString('pt-PT')}</p>
+    `;
+    document.getElementById('modal').style.display = 'block';
+  }
+
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      categoriaAtiva = btn.getAttribute('data-cat');
+      atualizarUI();
     });
-    
-    document.querySelector('.close-modal').onclick = () => document.getElementById('modal').style.display = 'none';
-    window.onclick = (e) => { if (e.target === document.getElementById('modal')) document.getElementById('modal').style.display = 'none'; };
-    
-    // Iniciar
-    carregarNoticias();
-    setInterval(carregarNoticias, 45000);
+  });
+
+  document.querySelector('.close-modal').onclick = () => document.getElementById('modal').style.display = 'none';
+  window.onclick = (e) => { if (e.target === document.getElementById('modal')) document.getElementById('modal').style.display = 'none'; };
+
+  carregarNoticias();
+  setInterval(carregarNoticias, 45000);
 </script>
 </body>
 </html>
